@@ -101,6 +101,7 @@ pub mod parsing {
         }
 
         pub use common::action::{
+            Action,
             add_key::{AccessKeyPermission, AddKey, FunctionCallPermission},
             create_account::CreateAccount,
             delete_account::DeleteAccount,
@@ -111,7 +112,6 @@ pub mod parsing {
             stake::Stake,
             transfer::Transfer,
             use_global_contract::UseGlobalContract,
-            Action,
         };
         pub use common::message_discriminant::MessageDiscriminant;
         pub use common::tx_public_key::TxPublicKey;
@@ -243,7 +243,7 @@ use ledger_device_sdk::nbgl::init_comm;
 
 mod swap;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 extern "C" fn sample_main(arg0: u32) {
     if arg0 != 0 {
         swap::swap_main(arg0);

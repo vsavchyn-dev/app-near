@@ -2,7 +2,7 @@
 name = "near"
 version = "2.4.3"
 authors = ["dj8yf0ul", "polyprogrammist"]
-edition = "2021"
+edition = "2024"
 
 
 [package.metadata.ledger]
@@ -49,4 +49,3 @@ speculos = ["ledger_device_sdk/speculos"]
 unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_os, values("apex_p", "stax", "flex", "nanox", "nanosplus"))',
 ] }
-
