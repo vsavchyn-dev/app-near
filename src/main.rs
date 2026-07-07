@@ -248,7 +248,7 @@ extern "C" fn sample_main(arg0: u32) {
     if arg0 != 0 {
         swap::swap_main(arg0);
     } else {
-        ledger_device_sdk::testing::debug_print("call app-near as a standalone\n");
+        ledger_device_sdk::log::debug!("call app-near as a standalone\n");
 
         let mut comm = Comm::new();
 

@@ -88,12 +88,12 @@ pub fn swap_handler(
     mut stream: SingleTxStream<'_>,
     tx_params: &CreateTxParams,
 ) -> Result<Signature, AppSW> {
-    ledger_device_sdk::testing::debug_print("sign_tx.rs: swap_handler()\n");
+    ledger_device_sdk::log::debug!("sign_tx.rs: swap_handler()\n");
 
     let path = <crypto::PathBip32 as BorshDeserialize>::deserialize_reader(&mut stream)
         .map_err(|_| AppSW::Bip32PathParsingFail)?;
 
-    ledger_device_sdk::testing::debug_print("sign_tx.rs: path computed\n");
+    ledger_device_sdk::log::debug!("sign_tx.rs: path computed\n");
 
     // Get the public key from the transaction
     let mut stream = HashingStream::new(stream)?;
@@ -135,7 +135,7 @@ pub fn swap_handler(
     let amount_match = near_token::NearToken::from_yoctonear(u128::from_be_bytes(tx_params.amount))
         == transfer.deposit;
     if !amount_match {
-        ledger_device_sdk::testing::debug_print("sign_tx.rs: amounts do not not match\n");
+        ledger_device_sdk::log::debug!("sign_tx.rs: amounts do not not match\n");
         return Err(AppSW::TxSignFail);
     }
 
@@ -143,7 +143,7 @@ pub fn swap_handler(
         == core::str::from_utf8(tx_params.dest_address[..tx_params.dest_address_len].as_ref())
             .unwrap();
     if !dest_address_match {
-        ledger_device_sdk::testing::debug_print(
+        ledger_device_sdk::log::debug!(
             "sign_tx.rs: receiver_id does not match with dest_address\n",
         );
         return Err(AppSW::TxSignFail);
