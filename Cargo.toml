@@ -2,7 +2,7 @@
 name = "near"
 version = "2.5.0"
 authors = ["dj8yf0ul", "polyprogrammist"]
-edition = "2021"
+edition = "2024"
 
 
 [package.metadata.ledger]
