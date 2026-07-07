@@ -4,11 +4,11 @@ function build_all() {
   # docker command to build
   cat <<"EOF" | docker run --rm -i --privileged -v "/dev/bus/usb:/dev/bus/usb" -v "$(realpath ./):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
     rm -rf target
-    cargo ledger build nanos
     cargo ledger build nanosplus
     cargo ledger build nanox
     cargo ledger build stax
     cargo ledger build flex
+    cargo ledger build apex_p
     exit
 EOF
 }
