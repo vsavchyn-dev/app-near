@@ -2,7 +2,7 @@
 use crate::app_ui::logo::NEAR_LOGO;
 use crate::{
     AppSW,
-    utils::crypto::{PathBip32, PublicKeyBe, public_key::NoSecpAllowed},
+    utils::crypto::{PathBip32, PublicKeyBe, public_key::DisallowedKeys},
 };
 use fmt_buffer::Buffer;
 use ledger_device_sdk::ecc::Ed25519;
@@ -18,7 +18,7 @@ use ledger_device_sdk::ui::{
 };
 
 pub fn validate(
-    tx_public_key: Result<PublicKeyBe, NoSecpAllowed>,
+    tx_public_key: Result<PublicKeyBe, DisallowedKeys>,
     path: &PathBip32,
 ) -> Result<(), AppSW> {
     let matching_private_key = {
