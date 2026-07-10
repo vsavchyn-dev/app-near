@@ -16,7 +16,7 @@ use ledger_device_sdk::{
     io::Event,
     ui::{
         bitmaps::{CROSSMARK, EYE, VALIDATE_14, WARNING},
-        gadgets::{clear_screen, MultiFieldReview},
+        gadgets::{MultiFieldReview, clear_screen},
         layout::{Layout, Location, StringPlace},
         screen_util::screen_update,
     },
@@ -628,9 +628,10 @@ mod tests {
 
     fn make_args(s: &str) -> FnCallCappedString {
         let mut args = FnCallCappedString::new();
-        assert!(args
-            .deserialize_with_bytes_count(&mut s.as_bytes(), s.len() as u32)
-            .is_ok());
+        assert!(
+            args.deserialize_with_bytes_count(&mut s.as_bytes(), s.len() as u32)
+                .is_ok()
+        );
         args
     }
 

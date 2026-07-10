@@ -1,6 +1,6 @@
+use crate::AppSW;
 use crate::parsing::types::Action;
 use crate::parsing::{HashingStream, SingleTxStream};
-use crate::AppSW;
 use borsh::BorshDeserialize;
 
 pub mod add_key;

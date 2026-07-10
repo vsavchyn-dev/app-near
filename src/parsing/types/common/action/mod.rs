@@ -1,5 +1,5 @@
-use borsh::io::{Error, ErrorKind, Read, Result};
 use borsh::BorshDeserialize;
+use borsh::io::{Error, ErrorKind, Read, Result};
 
 /// Nonce for transactions.
 pub type Nonce = u64;
