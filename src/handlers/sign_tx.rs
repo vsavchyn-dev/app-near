@@ -18,7 +18,7 @@ use crate::AppSW;
 use crate::parsing;
 use crate::parsing::{HashingStream, SingleTxStream};
 use crate::sign_ui;
-use crate::utils::crypto::public_key::NoSecpAllowed;
+use crate::utils::crypto::public_key::DisallowedKeys;
 use crate::utils::crypto::{self, PublicKeyBe};
 use borsh::BorshDeserialize;
 
@@ -29,7 +29,7 @@ use super::common::validate_public_key;
 
 struct PrefixResult {
     number_of_actions: u32,
-    tx_public_key_prevalidation: Result<PublicKeyBe, NoSecpAllowed>,
+    tx_public_key_prevalidation: Result<PublicKeyBe, DisallowedKeys>,
 }
 
 fn handle_transaction_prefix(
