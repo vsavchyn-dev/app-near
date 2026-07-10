@@ -1,8 +1,8 @@
 use crate::app_ui::aliases::CappedAccountId;
 use crate::parsing::HashingStream;
 use crate::utils::types::base58_buf::Base58Buf;
-use borsh::io::{Error, ErrorKind, Read, Result};
 use borsh::BorshDeserialize;
+use borsh::io::{Error, ErrorKind, Read, Result};
 
 #[repr(u8)]
 pub enum UseGlobalContract {

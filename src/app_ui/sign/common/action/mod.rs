@@ -16,7 +16,7 @@ use ledger_device_sdk::{
     io::Event,
     ui::{
         bitmaps::{CROSSMARK, EYE, VALIDATE_14, WARNING},
-        gadgets::{clear_screen, MultiFieldReview},
+        gadgets::{MultiFieldReview, clear_screen},
         layout::{Layout, Location, StringPlace},
         screen_util::screen_update,
     },
