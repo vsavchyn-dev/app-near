@@ -10,6 +10,9 @@ pub type U64Buffer = [u8; 20];
 /// A buffer, large enough to contain string representation
 /// of u32
 pub type U32Buffer = [u8; 10];
+/// A buffer, large enough to contain string representation
+/// of u16
+pub type U16Buffer = [u8; 5];
 
 // TODO: maybe increase display buffers considering nanos is gone?
 
