@@ -38,6 +38,7 @@ mod function_call_bin;
 mod function_call_common;
 mod function_call_permission;
 mod function_call_str;
+mod gas_key_info;
 mod stake;
 mod transfer;
 mod use_global_contract;
@@ -126,6 +127,52 @@ pub fn ui_display_add_key_functioncall(
         &mut writer,
         "Function Call",
     );
+    function_call_permission::format(function_call_per, &mut func_call_field_context, &mut writer);
+
+    ui_display_common(&mut writer, params)
+}
+
+pub fn ui_display_add_gas_key_fullaccess(
+    add_key: &parsing::types::AddKey,
+    gas_key_inf: &mut parsing::types::GasKeyInfo,
+    params: ActionParams,
+) -> bool {
+    let mut common_field_context: add_key_common::FieldsContext =
+        add_key_common::FieldsContext::new();
+    let mut gas_key_info_context: gas_key_info::FieldsContext = gas_key_info::FieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    add_key_common::format(
+        add_key,
+        &mut common_field_context,
+        &mut writer,
+        "Full Access",
+    );
+    gas_key_info::format(gas_key_inf, &mut gas_key_info_context, &mut writer);
+
+    ui_display_common(&mut writer, params)
+}
+
+pub fn ui_display_add_gas_key_functioncall(
+    add_key: &parsing::types::AddKey,
+    gas_key_inf: &mut parsing::types::GasKeyInfo,
+    function_call_per: &mut parsing::types::FunctionCallPermission,
+    params: ActionParams,
+) -> bool {
+    let mut common_field_context: add_key_common::FieldsContext =
+        add_key_common::FieldsContext::new();
+    let mut gas_key_info_context: gas_key_info::FieldsContext = gas_key_info::FieldsContext::new();
+    let mut func_call_field_context: function_call_permission::FieldsContext =
+        function_call_permission::FieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    add_key_common::format(
+        add_key,
+        &mut common_field_context,
+        &mut writer,
+        "Function Call",
+    );
+    gas_key_info::format(gas_key_inf, &mut gas_key_info_context, &mut writer);
     function_call_permission::format(function_call_per, &mut func_call_field_context, &mut writer);
 
     ui_display_common(&mut writer, params)

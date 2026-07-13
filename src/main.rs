@@ -102,7 +102,7 @@ pub mod parsing {
 
         pub use common::action::{
             Action,
-            add_key::{AccessKeyPermission, AddKey, FunctionCallPermission},
+            add_key::{AccessKeyPermission, AddKey, FunctionCallPermission, GasKeyInfo},
             create_account::CreateAccount,
             delete_account::DeleteAccount,
             delete_key::DeleteKey,

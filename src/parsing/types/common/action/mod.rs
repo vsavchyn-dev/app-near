@@ -4,6 +4,9 @@ use borsh::io::{Error, ErrorKind, Read, Result};
 /// Nonce for transactions.
 pub type Nonce = u64;
 
+/// Nonce index for GasKeys
+pub type NonceIndex = u16;
+
 /// Height of the block.
 pub type BlockHeight = u64;
 
