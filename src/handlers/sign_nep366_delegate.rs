@@ -1,5 +1,6 @@
 use crate::{
     AppSW,
+    app_ui::aliases::CappedAccountId,
     parsing::{
         self, HashingStream, SingleTxStream,
         types::{MessageDiscriminant, common::message_discriminant::NEP_366_META_TRANSACTIONS},
@@ -37,10 +38,18 @@ pub fn handler(mut stream: SingleTxStream<'_>) -> Result<Signature, AppSW> {
     finalize_sign::end(stream, &path)
 }
 
+struct PrefixResult {
+    pub receiver_id: CappedAccountId,
+    pub num_of_actions: u32,
+}
+
 pub fn handle_delegate_action(
     stream: &mut HashingStream<SingleTxStream<'_>>,
 ) -> Result<SuffixResult, AppSW> {
-    let num_of_actions = handle_prefix(stream)?;
+    let PrefixResult {
+        receiver_id,
+        num_of_actions,
+    } = handle_prefix(stream)?;
 
     for i in 0..num_of_actions {
         sign_ui::widgets::display_receiving();
@@ -49,12 +58,12 @@ pub fn handle_delegate_action(
             total_actions: num_of_actions,
             is_nested_delegate: true,
         };
-        handle_action(stream, params)?;
+        handle_action(stream, params, &receiver_id)?;
     }
     handle_suffix(stream)
 }
 
-fn handle_prefix(stream: &mut HashingStream<SingleTxStream<'_>>) -> Result<u32, AppSW> {
+fn handle_prefix(stream: &mut HashingStream<SingleTxStream<'_>>) -> Result<PrefixResult, AppSW> {
     let mut delegate_action_prefix = parsing::types::nep366_delegate_action::prefix::Prefix::new();
 
     delegate_action_prefix
@@ -64,7 +73,10 @@ fn handle_prefix(stream: &mut HashingStream<SingleTxStream<'_>>) -> Result<u32, 
     if !sign_ui::nep366_delegate_action::prefix::ui_display(&mut delegate_action_prefix) {
         return Err(AppSW::Deny);
     }
-    Ok(delegate_action_prefix.number_of_actions)
+    Ok(PrefixResult {
+        receiver_id: delegate_action_prefix.receiver_id,
+        num_of_actions: delegate_action_prefix.number_of_actions,
+    })
 }
 
 fn handle_suffix(stream: &mut HashingStream<SingleTxStream<'_>>) -> Result<SuffixResult, AppSW> {
