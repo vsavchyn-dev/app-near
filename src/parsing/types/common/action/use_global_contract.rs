@@ -5,13 +5,13 @@ use borsh::BorshDeserialize;
 use borsh::io::{Error, ErrorKind, Read, Result};
 
 #[repr(u8)]
-pub enum UseGlobalContract {
+pub enum GlobalContractIdentifier {
     /// 50 bytes is enough to store base58 of a sha256 hash of deployed code
     CodeHash(Base58Buf<50>) = 0,
     AccountId(CappedAccountId) = 1,
 }
 
-impl BorshDeserialize for UseGlobalContract {
+impl BorshDeserialize for GlobalContractIdentifier {
     fn deserialize_reader<R: Read>(reader: &mut R) -> Result<Self> {
         let discriminant: u8 = u8::deserialize_reader(reader)?;
 

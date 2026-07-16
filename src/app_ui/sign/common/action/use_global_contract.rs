@@ -10,7 +10,7 @@ use crate::app_ui::fields_writer::FieldsWriter;
 const MAX_FIELDS: usize = 2;
 
 pub fn format<'b>(
-    use_global_contract: &'b mut parsing::types::UseGlobalContract,
+    use_global_contract: &'b mut parsing::types::GlobalContractIdentifier,
     writer: &'_ mut FieldsWriter<'b, MAX_FIELDS>,
 ) {
     writer.push_fields(ElipsisFields::one(Field {
@@ -19,12 +19,12 @@ pub fn format<'b>(
     }));
 
     writer.push_fields(ElipsisFields::one(match use_global_contract {
-        parsing::types::UseGlobalContract::CodeHash(code_hash) => Field {
+        parsing::types::GlobalContractIdentifier::CodeHash(code_hash) => Field {
             name: "Contract SHA256",
             value: code_hash.as_str(),
         },
 
-        parsing::types::UseGlobalContract::AccountId(account_id) => Field {
+        parsing::types::GlobalContractIdentifier::AccountId(account_id) => Field {
             name: "Contract AccountId",
             value: account_id.as_str(),
         },
