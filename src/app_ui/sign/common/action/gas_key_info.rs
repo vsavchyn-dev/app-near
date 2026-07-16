@@ -45,7 +45,7 @@ pub fn format<'b, 'a: 'b>(
         .num_nonces
         .numtoa_str(10, &mut field_context.num_nonces_buffer);
     writer.push_fields(ElipsisFields::one(Field {
-        name: "Gas Key nonces",
+        name: "Gas Key Nonces",
         value: num_nonces_str,
     }));
 }
