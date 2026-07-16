@@ -13,6 +13,7 @@ pub mod delete_account;
 pub mod delete_key;
 pub mod deploy_contract;
 pub mod deploy_global_contract;
+pub mod deterministic_state_init;
 pub mod function_call;
 pub mod stake;
 pub mod transfer;
@@ -31,6 +32,7 @@ pub enum Action {
     Delegate,
     DeployGlobalContract,
     UseGlobalContract,
+    DeterministicStateInit,
 }
 
 impl BorshDeserialize for Action {
@@ -48,6 +50,7 @@ impl BorshDeserialize for Action {
             8 => Ok(Self::Delegate),
             9 => Ok(Self::DeployGlobalContract),
             10 => Ok(Self::UseGlobalContract),
+            11 => Ok(Self::DeterministicStateInit),
             _ => Err(Error::from(ErrorKind::InvalidData)),
         }
     }
