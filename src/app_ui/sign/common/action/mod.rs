@@ -274,7 +274,7 @@ pub fn ui_display_delegate_error(#[allow(unused)] comm: &mut Comm) {
 }
 
 pub fn ui_display_use_global_contract(
-    use_global_contract: &mut parsing::types::UseGlobalContract,
+    use_global_contract: &mut parsing::types::GlobalContractIdentifier,
     params: ActionParams,
 ) -> bool {
     let mut writer = FieldsWriter::new();
