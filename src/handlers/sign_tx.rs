@@ -15,6 +15,7 @@
  *  limitations under the License.
  *****************************************************************************/
 use crate::AppSW;
+use crate::app_ui::aliases::CappedAccountId;
 use crate::parsing;
 use crate::parsing::{HashingStream, SingleTxStream};
 use crate::sign_ui;
@@ -29,6 +30,7 @@ use super::common::validate_public_key;
 
 struct PrefixResult {
     number_of_actions: u32,
+    receiver_id: CappedAccountId,
     tx_public_key_prevalidation: Result<PublicKeyBe, DisallowedKeys>,
 }
 
@@ -48,6 +50,7 @@ fn handle_transaction_prefix(
 
     Ok(PrefixResult {
         number_of_actions: tx_prefix.number_of_actions,
+        receiver_id: tx_prefix.receiver_id,
         tx_public_key_prevalidation: tx_public_key,
     })
 }
@@ -61,6 +64,7 @@ pub fn handler(mut stream: SingleTxStream<'_>) -> Result<Signature, AppSW> {
 
     let PrefixResult {
         number_of_actions,
+        receiver_id,
         tx_public_key_prevalidation,
     } = handle_transaction_prefix(&mut stream)?;
     validate_public_key::validate(tx_public_key_prevalidation, &path)?;
@@ -72,7 +76,7 @@ pub fn handler(mut stream: SingleTxStream<'_>) -> Result<Signature, AppSW> {
             total_actions: number_of_actions,
             is_nested_delegate: false,
         };
-        handle_action(&mut stream, params)?;
+        handle_action(&mut stream, params, &receiver_id)?;
     }
 
     finalize_sign::end(stream, &path)

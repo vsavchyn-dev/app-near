@@ -29,6 +29,7 @@ mod utils {
     }
     pub mod types {
         pub mod base58_buf;
+        pub mod capped_account_id;
         pub mod capped_string;
         pub mod elipsis_fields;
         pub mod hex_display;
