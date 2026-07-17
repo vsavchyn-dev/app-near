@@ -114,6 +114,7 @@ pub mod parsing {
                 DeterministicAccountStateInitV1,
             },
             function_call::FunctionCallCommon,
+            gas_key_transaction::{GasKeyTransactionData, GasKeyTransactionType},
             stake::Stake,
             transfer::Transfer,
             use_global_contract::GlobalContractIdentifier,
