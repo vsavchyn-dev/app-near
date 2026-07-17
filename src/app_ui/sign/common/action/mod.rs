@@ -45,6 +45,7 @@ mod function_call_common;
 mod function_call_permission;
 mod function_call_str;
 mod gas_key_info;
+mod gas_key_transaction;
 mod stake;
 pub mod stake_fn_call;
 mod transfer;
@@ -301,6 +302,44 @@ pub fn ui_display_delegate_error(#[allow(unused)] comm: &mut Comm) {
 
         NbglStatus::new().text("Transaction rejected").show(res);
     }
+}
+
+pub fn ui_display_gas_key_transfer(
+    gas_key_transaction: &parsing::types::GasKeyTransactionData,
+    params: ActionParams,
+) -> bool {
+    let mut gas_key_transaction_context: gas_key_transaction::FieldsContext =
+        gas_key_transaction::FieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    gas_key_transaction::format(
+        gas_key_transaction,
+        &mut gas_key_transaction_context,
+        &mut writer,
+        "Transfer to Gas Key",
+        "Deposit",
+    );
+
+    ui_display_common(&mut writer, params)
+}
+
+pub fn ui_display_gas_key_withdraw(
+    gas_key_transaction: &parsing::types::GasKeyTransactionData,
+    params: ActionParams,
+) -> bool {
+    let mut gas_key_transaction_context: gas_key_transaction::FieldsContext =
+        gas_key_transaction::FieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    gas_key_transaction::format(
+        gas_key_transaction,
+        &mut gas_key_transaction_context,
+        &mut writer,
+        "Withdraw from Gas Key",
+        "Amount",
+    );
+
+    ui_display_common(&mut writer, params)
 }
 
 pub fn ui_display_use_global_contract(
