@@ -30,7 +30,7 @@ impl FieldsContext {
 /// Access Key Nonce (1) + Access Permission (1) +
 /// GasKey Balance (1) + GasKey Number of Nonces (1)
 /// FnCall Allowance (1) +
-/// FnCall Reciever `ElipsisFields` (1-2) + Total FnCall Methods (1) +
+/// FnCall Receiver `ElipsisFields` (1-2) + Total FnCall Methods (1) +
 /// Method Name `ElipsisFields` (1-2)
 pub const MAX_FIELDS_ADD_KEY: usize = 12;
 

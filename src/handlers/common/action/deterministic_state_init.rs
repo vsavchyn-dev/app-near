@@ -91,7 +91,7 @@ fn verify_mismatch_display(receiver_account_id: &str, derived_account_id: &str) 
 
     let my_fields = [
         Field {
-            name: "Reciever Account Id",
+            name: "Receiver Account Id",
             value: receiver_account_id,
         },
         Field {
