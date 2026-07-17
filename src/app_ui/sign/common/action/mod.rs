@@ -34,6 +34,8 @@ mod delete_account;
 mod delete_key;
 mod deploy_contract;
 mod deploy_global_contract;
+mod deterministic_state_init;
+mod deterministic_state_init_common;
 mod function_call_bin;
 mod function_call_common;
 mod function_call_permission;
@@ -196,6 +198,24 @@ pub fn ui_display_deploy_global_contract(
     let mut writer = FieldsWriter::new();
 
     deploy_global_contract::format(deploy_global_contract, &mut writer);
+
+    ui_display_common(&mut writer, params)
+}
+
+pub fn ui_display_deterministic_state_init_v1(
+    state_init_v1: &mut parsing::types::DeterministicAccountStateInitV1,
+    postfix: &parsing::types::DeterministicAccountStateInitPostfix,
+    params: ActionParams,
+) -> bool {
+    let mut v1_context: deterministic_state_init::V1FieldsContext =
+        deterministic_state_init::V1FieldsContext::new();
+    let mut postfix_context: deterministic_state_init_common::PostfixFieldsContext =
+        deterministic_state_init_common::PostfixFieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    deterministic_state_init_common::format("State Init V1", &mut writer);
+    deterministic_state_init::format_v1(state_init_v1, &mut v1_context, &mut writer);
+    deterministic_state_init_common::format_postfix(postfix, &mut postfix_context, &mut writer);
 
     ui_display_common(&mut writer, params)
 }
