@@ -18,6 +18,7 @@ pub mod deploy_contract;
 pub mod deploy_global_contract;
 pub mod deterministic_state_init;
 pub mod function_call;
+pub mod gas_key_transaction;
 pub mod stake;
 pub mod transfer;
 pub mod use_global_contract;
@@ -36,6 +37,8 @@ pub enum Action {
     DeployGlobalContract,
     UseGlobalContract,
     DeterministicStateInit,
+    TransferToGasKey,
+    WithdrawFromGasKey,
 }
 
 impl BorshDeserialize for Action {
@@ -54,6 +57,8 @@ impl BorshDeserialize for Action {
             9 => Ok(Self::DeployGlobalContract),
             10 => Ok(Self::UseGlobalContract),
             11 => Ok(Self::DeterministicStateInit),
+            12 => Ok(Self::TransferToGasKey),
+            13 => Ok(Self::WithdrawFromGasKey),
             _ => Err(Error::from(ErrorKind::InvalidData)),
         }
     }
