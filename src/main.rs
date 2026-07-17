@@ -109,6 +109,10 @@ pub mod parsing {
             delete_key::DeleteKey,
             deploy_contract::DeployContract,
             deploy_global_contract::DeployGlobalContract,
+            deterministic_state_init::{
+                DeterministicAccountStateInit, DeterministicAccountStateInitPostfix,
+                DeterministicAccountStateInitV1,
+            },
             function_call::FunctionCallCommon,
             stake::Stake,
             transfer::Transfer,
@@ -167,6 +171,7 @@ pub enum AppSW {
     Bip32PathParsingFail = 0xB00B,
     TxHashFinalizeFail = 0xB00C,
     PublicKeyMismatch = 0xB00D,
+    DerivedAccountIdMismatch = 0xB00E,
     WrongApduLength = StatusWords::BadLen as u16,
 }
 
