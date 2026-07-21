@@ -2,28 +2,28 @@ use crate::app_ui::aliases::{FnCallCappedString, FnCallHexDisplay, U32Buffer};
 use crate::{app_ui::fields_writer::FieldsWriter, handlers::common::action::ActionParams, parsing};
 use fmt_buffer::Buffer;
 
-#[cfg(not(any(target_os = "stax", target_os = "flex")))]
+#[cfg(not(any(target_os = "stax", target_os = "flex", target_os = "apex_p")))]
 use crate::Instruction;
 use ledger_device_sdk::io::Comm;
-#[cfg(any(target_os = "stax", target_os = "flex"))]
+#[cfg(any(target_os = "stax", target_os = "flex", target_os = "apex_p"))]
 use ledger_device_sdk::nbgl::{
-    CenteredInfo, CenteredInfoStyle, InfoButton, InfoLongPress, NbglGenericReview, NbglGlyph,
-    NbglPageContent, NbglStatus, TagValueList, TuneIndex,
+    CenteredInfo, CenteredInfoStyle, InfoButton, InfoLongPress, NbglGenericReview, NbglPageContent,
+    NbglStatus, TagValueList, TuneIndex,
 };
-#[cfg(not(any(target_os = "stax", target_os = "flex")))]
+#[cfg(any(target_os = "nanox", target_os = "nanosplus"))]
 use ledger_device_sdk::{
     buttons::ButtonEvent,
     io::Event,
     ui::{
         bitmaps::{CROSSMARK, EYE, VALIDATE_14, WARNING},
-        gadgets::{clear_screen, MultiFieldReview},
+        gadgets::{MultiFieldReview, clear_screen},
         layout::{Layout, Location, StringPlace},
         screen_util::screen_update,
     },
 };
 
-#[cfg(any(target_os = "stax", target_os = "flex"))]
-use include_gif::include_gif;
+#[cfg(any(target_os = "stax", target_os = "flex", target_os = "apex_p"))]
+use crate::app_ui::logo::NEAR_LOGO;
 use numtoa::NumToA;
 
 use super::tx_public_key_context;
@@ -33,12 +33,18 @@ mod create_account;
 mod delete_account;
 mod delete_key;
 mod deploy_contract;
+mod deploy_global_contract;
+mod deterministic_state_init;
+mod deterministic_state_init_common;
 mod function_call_bin;
 mod function_call_common;
 mod function_call_permission;
 mod function_call_str;
+mod gas_key_info;
+mod gas_key_transaction;
 mod stake;
 mod transfer;
+mod use_global_contract;
 
 pub fn ui_display_transfer(transfer: &parsing::types::Transfer, params: ActionParams) -> bool {
     let mut field_context: transfer::FieldsContext = transfer::FieldsContext::new();
@@ -129,6 +135,52 @@ pub fn ui_display_add_key_functioncall(
     ui_display_common(&mut writer, params)
 }
 
+pub fn ui_display_add_gas_key_fullaccess(
+    add_key: &parsing::types::AddKey,
+    gas_key_inf: &mut parsing::types::GasKeyInfo,
+    params: ActionParams,
+) -> bool {
+    let mut common_field_context: add_key_common::FieldsContext =
+        add_key_common::FieldsContext::new();
+    let mut gas_key_info_context: gas_key_info::FieldsContext = gas_key_info::FieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    add_key_common::format(
+        add_key,
+        &mut common_field_context,
+        &mut writer,
+        "Full Access",
+    );
+    gas_key_info::format(gas_key_inf, &mut gas_key_info_context, &mut writer);
+
+    ui_display_common(&mut writer, params)
+}
+
+pub fn ui_display_add_gas_key_functioncall(
+    add_key: &parsing::types::AddKey,
+    gas_key_inf: &mut parsing::types::GasKeyInfo,
+    function_call_per: &mut parsing::types::FunctionCallPermission,
+    params: ActionParams,
+) -> bool {
+    let mut common_field_context: add_key_common::FieldsContext =
+        add_key_common::FieldsContext::new();
+    let mut gas_key_info_context: gas_key_info::FieldsContext = gas_key_info::FieldsContext::new();
+    let mut func_call_field_context: function_call_permission::FieldsContext =
+        function_call_permission::FieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    add_key_common::format(
+        add_key,
+        &mut common_field_context,
+        &mut writer,
+        "Function Call",
+    );
+    gas_key_info::format(gas_key_inf, &mut gas_key_info_context, &mut writer);
+    function_call_permission::format(function_call_per, &mut func_call_field_context, &mut writer);
+
+    ui_display_common(&mut writer, params)
+}
+
 pub fn ui_display_deploy_contract(
     deploy_contract: &parsing::types::DeployContract,
     params: ActionParams,
@@ -136,6 +188,35 @@ pub fn ui_display_deploy_contract(
     let mut writer = FieldsWriter::new();
 
     deploy_contract::format(deploy_contract, &mut writer);
+
+    ui_display_common(&mut writer, params)
+}
+
+pub fn ui_display_deploy_global_contract(
+    deploy_global_contract: &parsing::types::DeployGlobalContract,
+    params: ActionParams,
+) -> bool {
+    let mut writer = FieldsWriter::new();
+
+    deploy_global_contract::format(deploy_global_contract, &mut writer);
+
+    ui_display_common(&mut writer, params)
+}
+
+pub fn ui_display_deterministic_state_init_v1(
+    state_init_v1: &mut parsing::types::DeterministicAccountStateInitV1,
+    postfix: &parsing::types::DeterministicAccountStateInitPostfix,
+    params: ActionParams,
+) -> bool {
+    let mut v1_context: deterministic_state_init::V1FieldsContext =
+        deterministic_state_init::V1FieldsContext::new();
+    let mut postfix_context: deterministic_state_init_common::PostfixFieldsContext =
+        deterministic_state_init_common::PostfixFieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    deterministic_state_init_common::format("State Init V1", &mut writer);
+    deterministic_state_init::format_v1(state_init_v1, &mut v1_context, &mut writer);
+    deterministic_state_init_common::format_postfix(postfix, &mut postfix_context, &mut writer);
 
     ui_display_common(&mut writer, params)
 }
@@ -175,19 +256,14 @@ pub fn ui_display_function_call_bin(
 }
 
 pub fn ui_display_delegate_error(#[allow(unused)] comm: &mut Comm) {
-    #[cfg(not(any(target_os = "stax", target_os = "flex")))]
+    #[cfg(not(any(target_os = "stax", target_os = "flex", target_os = "apex_p")))]
     {
         clear_screen();
 
         // Add icon and text to match the C SDK equivalent.
-        if cfg!(target_os = "nanos") {
-            "Sign delegate action".place(Location::Custom(2), Layout::Centered, true);
-            "not supported...".place(Location::Custom(14), Layout::Centered, true);
-        } else {
-            WARNING.draw(57, 10);
-            "Sign delegate action".place(Location::Custom(28), Layout::Centered, true);
-            "not supported...".place(Location::Custom(42), Layout::Centered, true);
-        }
+        WARNING.draw(57, 10);
+        "Sign delegate action".place(Location::Custom(28), Layout::Centered, true);
+        "not supported...".place(Location::Custom(42), Layout::Centered, true);
 
         screen_update();
         loop {
@@ -200,11 +276,8 @@ pub fn ui_display_delegate_error(#[allow(unused)] comm: &mut Comm) {
             }
         }
     }
-    #[cfg(any(target_os = "stax", target_os = "flex"))]
+    #[cfg(any(target_os = "stax", target_os = "flex", target_os = "apex_p"))]
     {
-        const NEAR_LOGO: NbglGlyph =
-            NbglGlyph::from_include(include_gif!("icons/app_near_64px.gif", NBGL));
-
         let info_button = InfoButton::new(
             "Delegate action is not supported",
             Some(&NEAR_LOGO),
@@ -219,6 +292,55 @@ pub fn ui_display_delegate_error(#[allow(unused)] comm: &mut Comm) {
 
         NbglStatus::new().text("Transaction rejected").show(res);
     }
+}
+
+pub fn ui_display_gas_key_transfer(
+    gas_key_transaction: &parsing::types::GasKeyTransactionData,
+    params: ActionParams,
+) -> bool {
+    let mut gas_key_transaction_context: gas_key_transaction::FieldsContext =
+        gas_key_transaction::FieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    gas_key_transaction::format(
+        gas_key_transaction,
+        &mut gas_key_transaction_context,
+        &mut writer,
+        "Transfer to Gas Key",
+        "Deposit",
+    );
+
+    ui_display_common(&mut writer, params)
+}
+
+pub fn ui_display_gas_key_withdraw(
+    gas_key_transaction: &parsing::types::GasKeyTransactionData,
+    params: ActionParams,
+) -> bool {
+    let mut gas_key_transaction_context: gas_key_transaction::FieldsContext =
+        gas_key_transaction::FieldsContext::new();
+    let mut writer = FieldsWriter::new();
+
+    gas_key_transaction::format(
+        gas_key_transaction,
+        &mut gas_key_transaction_context,
+        &mut writer,
+        "Withdraw from Gas Key",
+        "Amount",
+    );
+
+    ui_display_common(&mut writer, params)
+}
+
+pub fn ui_display_use_global_contract(
+    use_global_contract: &mut parsing::types::GlobalContractIdentifier,
+    params: ActionParams,
+) -> bool {
+    let mut writer = FieldsWriter::new();
+
+    use_global_contract::format(use_global_contract, &mut writer);
+
+    ui_display_common(&mut writer, params)
 }
 
 pub fn ui_display_common<const N: usize>(
@@ -244,7 +366,7 @@ pub fn ui_display_common<const N: usize>(
 
     let msg_after = if is_last { last_msg } else { next_msg };
 
-    #[cfg(not(any(target_os = "stax", target_os = "flex")))]
+    #[cfg(any(target_os = "nanox", target_os = "nanosplus"))]
     {
         let binding = [msg_before];
 
@@ -261,11 +383,8 @@ pub fn ui_display_common<const N: usize>(
         my_review.show()
     }
 
-    #[cfg(any(target_os = "stax", target_os = "flex"))]
+    #[cfg(any(target_os = "stax", target_os = "flex", target_os = "apex_p"))]
     {
-        const NEAR_LOGO: NbglGlyph =
-            NbglGlyph::from_include(include_gif!("icons/app_near_64px.gif", NBGL));
-
         let centered_info = CenteredInfo::new(
             msg_before,
             "",

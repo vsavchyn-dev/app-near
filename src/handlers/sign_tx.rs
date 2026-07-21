@@ -14,22 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *****************************************************************************/
+use crate::AppSW;
+use crate::app_ui::aliases::CappedAccountId;
 use crate::parsing;
 use crate::parsing::{HashingStream, SingleTxStream};
 use crate::sign_ui;
-use crate::utils::crypto::public_key::NoSecpAllowed;
+use crate::utils::crypto::public_key::DisallowedKeys;
 use crate::utils::crypto::{self, PublicKeyBe};
-use crate::AppSW;
 use borsh::BorshDeserialize;
 
-use crate::handlers::common::action::{handle_action, ActionParams};
+use crate::handlers::common::action::{ActionParams, handle_action};
 
 use super::common::finalize_sign::{self, Signature};
 use super::common::validate_public_key;
 
 struct PrefixResult {
     number_of_actions: u32,
-    tx_public_key_prevalidation: Result<PublicKeyBe, NoSecpAllowed>,
+    receiver_id: CappedAccountId,
+    tx_public_key_prevalidation: Result<PublicKeyBe, DisallowedKeys>,
 }
 
 fn handle_transaction_prefix(
@@ -48,6 +50,7 @@ fn handle_transaction_prefix(
 
     Ok(PrefixResult {
         number_of_actions: tx_prefix.number_of_actions,
+        receiver_id: tx_prefix.receiver_id,
         tx_public_key_prevalidation: tx_public_key,
     })
 }
@@ -61,6 +64,7 @@ pub fn handler(mut stream: SingleTxStream<'_>) -> Result<Signature, AppSW> {
 
     let PrefixResult {
         number_of_actions,
+        receiver_id,
         tx_public_key_prevalidation,
     } = handle_transaction_prefix(&mut stream)?;
     validate_public_key::validate(tx_public_key_prevalidation, &path)?;
@@ -72,7 +76,7 @@ pub fn handler(mut stream: SingleTxStream<'_>) -> Result<Signature, AppSW> {
             total_actions: number_of_actions,
             is_nested_delegate: false,
         };
-        handle_action(&mut stream, params)?;
+        handle_action(&mut stream, params, &receiver_id)?;
     }
 
     finalize_sign::end(stream, &path)
@@ -88,12 +92,12 @@ pub fn swap_handler(
     mut stream: SingleTxStream<'_>,
     tx_params: &CreateTxParams,
 ) -> Result<Signature, AppSW> {
-    ledger_device_sdk::testing::debug_print("sign_tx.rs: swap_handler()\n");
+    ledger_device_sdk::log::debug!("sign_tx.rs: swap_handler()\n");
 
     let path = <crypto::PathBip32 as BorshDeserialize>::deserialize_reader(&mut stream)
         .map_err(|_| AppSW::Bip32PathParsingFail)?;
 
-    ledger_device_sdk::testing::debug_print("sign_tx.rs: path computed\n");
+    ledger_device_sdk::log::debug!("sign_tx.rs: path computed\n");
 
     // Get the public key from the transaction
     let mut stream = HashingStream::new(stream)?;
@@ -135,7 +139,7 @@ pub fn swap_handler(
     let amount_match = near_token::NearToken::from_yoctonear(u128::from_be_bytes(tx_params.amount))
         == transfer.deposit;
     if !amount_match {
-        ledger_device_sdk::testing::debug_print("sign_tx.rs: amounts do not not match\n");
+        ledger_device_sdk::log::debug!("sign_tx.rs: amounts do not not match\n");
         return Err(AppSW::TxSignFail);
     }
 
@@ -143,7 +147,7 @@ pub fn swap_handler(
         == core::str::from_utf8(tx_params.dest_address[..tx_params.dest_address_len].as_ref())
             .unwrap();
     if !dest_address_match {
-        ledger_device_sdk::testing::debug_print(
+        ledger_device_sdk::log::debug!(
             "sign_tx.rs: receiver_id does not match with dest_address\n",
         );
         return Err(AppSW::TxSignFail);
