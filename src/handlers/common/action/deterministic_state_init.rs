@@ -100,7 +100,8 @@ fn verify_mismatch_display(receiver_account_id: &str, derived_account_id: &str) 
         },
     ];
 
-    let msg_before = "Derived Acc Id Mismatch";
+    let msg_before = "Derived Account Id";
+    let msg_before_2 = "Mismatch";
     let msg_after = "Error!";
 
     #[cfg(any(target_os = "nanox", target_os = "nanosplus"))]
@@ -110,7 +111,7 @@ fn verify_mismatch_display(receiver_account_id: &str, derived_account_id: &str) 
             gadgets::MultiFieldReview,
         };
 
-        let binding = [msg_before];
+        let binding = [msg_before, msg_before_2];
 
         let my_review = MultiFieldReview::new(
             &my_fields,
@@ -134,7 +135,7 @@ fn verify_mismatch_display(receiver_account_id: &str, derived_account_id: &str) 
 
         let centered_info = CenteredInfo::new(
             msg_before,
-            "",
+            msg_before_2,
             "",
             Some(&NEAR_LOGO),
             false,
