@@ -285,7 +285,7 @@ def test_sign_add_gas_key_functioncall(firmware, backend, navigator: Navigator, 
                 SW_OK,
                 # signature
                 bytes.fromhex(
-                    "67cb6e89efff98d410d03694ca4179eddad616ba0bba289ef23b44af70137ccbde52c3f8764d851e8644441eb8500f0d22820738ad192c5af40e214cb69d9a0d"
+                    "72266a429bac4674c922419bdc4470bdf0efa5b4db1933f2cf48d35dadda72e4589572c2857ec6907d45ac192b9f16281e60d5269ac122fdf49525969f2c9d02"
                 ),
             ),
         ),
