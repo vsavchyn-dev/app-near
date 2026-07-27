@@ -46,7 +46,7 @@ impl BorshDeserialize for TxPublicKey {
                 let mut sha3_256 = Sha3_256::new();
                 let mut buf: [u8; 32] = [0u8; 32];
 
-                // We expect to recieve ML-DSA-65 pubkey, which has 1952 bytes.
+                // We expect to receive ML-DSA-65 pubkey, which has 1952 bytes.
                 // Hence, 1952 / 32 = 61
                 for _ in 0..61 {
                     buf = BorshDeserialize::deserialize_reader(rd)?;
