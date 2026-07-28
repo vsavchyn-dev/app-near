@@ -1,6 +1,6 @@
 use crate::utils::crypto::{PathBip32, PublicKeyBe};
 use fmt_buffer::Buffer;
-use near_gas::{GasBuffer, NearGas};
+use ledger_device_sdk::log;
 use near_token::{NearToken, TokenBuffer};
 
 use ledger_device_sdk::{
@@ -10,13 +10,12 @@ use ledger_device_sdk::{
         self,
         swap::{self, CheckAddressParams, CreateTxParams, PrintableAmountParams},
     },
-    testing::debug_print,
 };
 
 use crate::parsing::transaction_stream_reader::SingleTxStream;
 
 pub fn swap_main(arg0: u32) {
-    debug_print("call app for swap \n");
+    log::debug!("call app for swap \n");
 
     let cmd = libcall::get_command(arg0);
 
@@ -26,7 +25,7 @@ pub fn swap_main(arg0: u32) {
             let res = match check_address(&params) {
                 Ok(_) => 1,
                 Err(err) => {
-                    debug_print(err);
+                    log::debug!("{}", err);
                     0
                 }
             };
@@ -46,13 +45,13 @@ pub fn swap_main(arg0: u32) {
             {
                 let mut comm = Comm::new().set_expected_cla(super::CLA);
 
-                debug_print("Wait for APDU\n");
+                log::debug!("Wait for APDU\n");
 
                 loop {
                     // Wait for an APDU command
                     let ins: super::Instruction = comm.next_command();
 
-                    debug_print("APDU received\n");
+                    log::debug!("APDU received\n");
 
                     swap_handle_apdu(&mut comm, ins, &mut params);
                 }
@@ -67,7 +66,7 @@ fn swap_handle_apdu(comm: &mut Comm, ins: super::Instruction, tx_params: &mut Cr
             is_last_chunk,
             sign_mode,
         } => {
-            debug_print("handle_swap_apdu => Sign Tx\n");
+            log::debug!("handle_swap_apdu => Sign Tx\n");
             let stream = SingleTxStream::new(comm, is_last_chunk, sign_mode);
             match sign_mode {
                 super::SignMode::Transaction => {
@@ -126,8 +125,10 @@ fn check_address(params: &CheckAddressParams) -> Result<(), &'static str> {
 fn get_printable_amount(params: &PrintableAmountParams) -> Buffer<30> {
     match params.is_fee {
         true => {
-            let gas = NearGas::from_gas(450_000_000_000);
-            let mut near_gas_buffer = GasBuffer::new();
+            let amount = u128::from_be_bytes(params.amount);
+            let gas = NearToken::from_yoctonear(amount);
+            let mut near_gas_buffer = TokenBuffer::new();
+
             gas.display_as_buffer(&mut near_gas_buffer);
             near_gas_buffer
         }

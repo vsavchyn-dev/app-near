@@ -41,6 +41,7 @@ mod app_ui {
     pub mod address;
     pub mod aliases;
     pub mod fields_writer;
+    pub mod logo;
     pub mod menu;
     pub mod sign {
         pub mod common {
@@ -124,6 +125,7 @@ use handlers::{
     get_public_key, get_version, get_wallet_id, sign_nep366_delegate, sign_nep413_msg, sign_tx,
 };
 use ledger_device_sdk::io::{ApduHeader, Comm, Event, Reply, StatusWords};
+use ledger_device_sdk::log;
 #[cfg(feature = "speculos")]
 use ledger_device_sdk::testing;
 use parsing::SingleTxStream;
@@ -237,7 +239,7 @@ impl TryFrom<ApduHeader> for Instruction {
     }
 }
 
-#[cfg(any(target_os = "stax", target_os = "flex"))]
+#[cfg(any(target_os = "stax", target_os = "flex", target_os = "apex_p"))]
 use ledger_device_sdk::nbgl::init_comm;
 
 mod swap;
@@ -247,11 +249,11 @@ extern "C" fn sample_main(arg0: u32) {
     if arg0 != 0 {
         swap::swap_main(arg0);
     } else {
-        ledger_device_sdk::testing::debug_print("call app-near as a standalone\n");
+        log::debug!("call app-near as a standalone\n");
 
         let mut comm = Comm::new();
 
-        #[cfg(any(target_os = "stax", target_os = "flex"))]
+        #[cfg(any(target_os = "stax", target_os = "flex", target_os = "apex_p"))]
         init_comm(&mut comm);
 
         loop {

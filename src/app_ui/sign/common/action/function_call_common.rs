@@ -2,9 +2,9 @@ use crate::{
     parsing,
     utils::types::elipsis_fields::{ElipsisFields, EllipsisBuffer},
 };
-#[cfg(any(target_os = "stax", target_os = "flex"))]
+#[cfg(any(target_os = "stax", target_os = "flex", target_os = "apex_p"))]
 use ledger_device_sdk::nbgl::Field;
-#[cfg(not(any(target_os = "stax", target_os = "flex")))]
+#[cfg(any(target_os = "nanox", target_os = "nanosplus"))]
 use ledger_device_sdk::ui::gadgets::Field;
 
 use near_gas::GasBuffer;
@@ -15,7 +15,7 @@ use crate::app_ui::fields_writer::FieldsWriter;
 pub struct FieldsContext {
     pub method_name_display_buf: EllipsisBuffer,
     pub gas_buf: GasBuffer,
-    pub deposit_buffer: TokenBuffer,
+    pub deposit_buf: TokenBuffer,
 }
 
 impl FieldsContext {
@@ -23,7 +23,7 @@ impl FieldsContext {
         Self {
             method_name_display_buf: EllipsisBuffer::default(),
             gas_buf: GasBuffer::new(),
-            deposit_buffer: TokenBuffer::new(),
+            deposit_buf: TokenBuffer::new(),
         }
     }
 }
@@ -55,9 +55,9 @@ pub fn format<'b, 'a: 'b, const N: usize>(
 
     func_call_common
         .deposit
-        .display_as_buffer(&mut field_context.deposit_buffer);
+        .display_as_buffer(&mut field_context.deposit_buf);
     writer.push_fields(ElipsisFields::one(Field {
         name: "Deposit",
-        value: field_context.deposit_buffer.as_str(),
+        value: field_context.deposit_buf.as_str(),
     }));
 }
