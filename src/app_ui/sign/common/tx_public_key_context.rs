@@ -41,7 +41,7 @@ impl FieldsContext {
                 // is not expected to be encountered on encoding 32 bytes to 50 bytes long buffer
                 bs58_buf.encode(arr).unwrap();
 
-                self.buffer.write_str("ml_dsa_65_hash:");
+                self.buffer.write_str("ml-dsa-65-hash:");
                 self.buffer.write_str(bs58_buf.as_str());
             }
         }

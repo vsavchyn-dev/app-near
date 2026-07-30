@@ -46,6 +46,11 @@ impl BorshDeserialize for TxPublicKey {
                 let mut sha3_256 = Sha3_256::new();
                 let mut buf: [u8; 32] = [0u8; 32];
 
+                // Domain separator for the hash as specified in [NEP-645](https://github.com/near/NEPs/blob/master/neps/nep-0645.md#on-trie-storage-publickeyhandle-and-hashing)
+                sha3_256
+                    .update(b"near:ml-dsa-65-pubkey-hash:v1")
+                    .map_err(|_err| io::ErrorKind::OutOfMemory)?;
+
                 // We expect to receive ML-DSA-65 pubkey, which has 1952 bytes.
                 // Hence, 1952 / 32 = 61
                 for _ in 0..61 {
