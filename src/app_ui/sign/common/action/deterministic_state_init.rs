@@ -38,7 +38,7 @@ pub fn format_v1<'b, 'a: 'b, const N: usize>(
             ("Contract SHA256", code_hash.as_str())
         }
         parsing::types::GlobalContractIdentifier::AccountId(account_id) => {
-            ("Contract AccountId", account_id.as_str())
+            ("Contract Account", account_id.as_str())
         }
     };
 
