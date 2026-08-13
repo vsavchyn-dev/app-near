@@ -110,6 +110,7 @@ pub fn handler(mut stream: SingleTxStream<'_>) -> Result<Signature, AppSW> {
                 ordinal_action: i + 1,
                 total_actions: number_of_actions,
                 is_nested_delegate: false,
+                action_str: "",
             };
             handle_action(&mut stream, params, &tx_prefix.receiver_id)?;
         }

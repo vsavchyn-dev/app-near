@@ -57,6 +57,7 @@ pub fn handle_delegate_action(
             ordinal_action: i + 1,
             total_actions: num_of_actions,
             is_nested_delegate: true,
+            action_str: "",
         };
         handle_action(stream, params, &receiver_id)?;
     }

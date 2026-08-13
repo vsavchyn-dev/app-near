@@ -67,23 +67,25 @@ pub fn ui_display_transfer(transfer: &parsing::types::Transfer, params: ActionPa
 
 pub fn ui_display_create_account(
     create_account: &parsing::types::CreateAccount,
+    account_id: &mut crate::utils::types::capped_account_id::CappedAccountId,
     params: ActionParams,
 ) -> bool {
     let mut writer = FieldsWriter::new();
 
-    create_account::format(create_account, &mut writer);
+    create_account::format(create_account, account_id, &mut writer);
 
     ui_display_common(&mut writer, params)
 }
 
 pub fn ui_display_delete_account(
     delete_account: &mut parsing::types::DeleteAccount,
+    account_id: &mut crate::utils::types::capped_account_id::CappedAccountId,
     params: ActionParams,
 ) -> bool {
     let mut writer = FieldsWriter::new();
     let mut field_context: delete_account::FieldsContext = delete_account::FieldsContext::new();
 
-    delete_account::format(delete_account, &mut field_context, &mut writer);
+    delete_account::format(delete_account, &mut field_context, account_id, &mut writer);
 
     ui_display_common(&mut writer, params)
 }
@@ -316,8 +318,7 @@ pub fn ui_display_gas_key_transfer(
         gas_key_transaction,
         &mut gas_key_transaction_context,
         &mut writer,
-        "Transfer to Gas Key",
-        "Deposit",
+        "Deposit Amount",
     );
 
     ui_display_common(&mut writer, params)
@@ -335,8 +336,7 @@ pub fn ui_display_gas_key_withdraw(
         gas_key_transaction,
         &mut gas_key_transaction_context,
         &mut writer,
-        "Withdraw from Gas Key",
-        "Amount",
+        "Withdraw Amount",
     );
 
     ui_display_common(&mut writer, params)
@@ -615,10 +615,11 @@ pub fn ui_display_common<const N: usize>(
     writer: &mut FieldsWriter<'_, N>,
     params: ActionParams,
 ) -> bool {
-    let mut ordinal_fmt_buf = OrdinalStringBuffer::new();
-    let is_last = ordinal_string(&mut ordinal_fmt_buf, params);
+    let mut action_params_fmt_buf = ActionParamsContext::new();
+    let is_last = ordinal_string(&mut action_params_fmt_buf, params);
 
-    let msg_before = ordinal_fmt_buf.as_str();
+    let msg_before_main = action_params_fmt_buf.ordinal_string_buf.as_str();
+    let msg_before_sub = action_params_fmt_buf.action_name_buf.as_str();
 
     let next_msg = if params.is_nested_delegate {
         "Next Subaction"
@@ -636,7 +637,7 @@ pub fn ui_display_common<const N: usize>(
 
     #[cfg(any(target_os = "nanox", target_os = "nanosplus"))]
     {
-        let binding = [msg_before];
+        let binding = [msg_before_main, msg_before_sub];
 
         let my_review = MultiFieldReview::new(
             writer.get_fields(),
@@ -654,8 +655,8 @@ pub fn ui_display_common<const N: usize>(
     #[cfg(any(target_os = "stax", target_os = "flex", target_os = "apex_p"))]
     {
         let centered_info = CenteredInfo::new(
-            msg_before,
-            "",
+            msg_before_main,
+            msg_before_sub,
             "",
             Some(&NEAR_LOGO),
             false,
@@ -708,21 +709,45 @@ pub fn ui_display_common<const N: usize>(
 
 /// a buffer, large enough to fit description string and
 /// 2 u32 numbers as strings
-type OrdinalStringBuffer = Buffer<40>;
+type OrdinalStringBuffer = Buffer<60>;
 
-fn ordinal_string(fmt_buf: &mut OrdinalStringBuffer, params: ActionParams) -> bool {
+/// a buffer, large enough to fit action string from [Action](crate::parsing::types::common::action::Action)
+/// under description
+type ActionStringBuffer = Buffer<60>;
+
+struct ActionParamsContext {
+    pub ordinal_string_buf: OrdinalStringBuffer,
+    pub action_name_buf: ActionStringBuffer,
+}
+
+impl ActionParamsContext {
+    pub fn new() -> Self {
+        Self {
+            ordinal_string_buf: OrdinalStringBuffer::new(),
+            action_name_buf: ActionStringBuffer::new(),
+        }
+    }
+}
+
+fn ordinal_string(fmt_buf: &mut ActionParamsContext, params: ActionParams) -> bool {
     let mut num_out = U32Buffer::default();
     let header = if params.is_nested_delegate {
         "View subaction "
     } else {
         "View action "
     };
-    fmt_buf.write_str(header);
+    fmt_buf.ordinal_string_buf.write_str(header);
     // numtoa_buf has to be at least 10 bytes for u32 (4 bytes) : ok
-    fmt_buf.write_str(params.ordinal_action.numtoa_str(10, &mut num_out));
-    fmt_buf.write_str(" / ");
+    fmt_buf
+        .ordinal_string_buf
+        .write_str(params.ordinal_action.numtoa_str(10, &mut num_out));
+    fmt_buf.ordinal_string_buf.write_str(" / ");
     // numtoa_buf has to be at least 10 bytes for u32 (4 bytes) : ok
-    fmt_buf.write_str(params.total_actions.numtoa_str(10, &mut num_out));
+    fmt_buf
+        .ordinal_string_buf
+        .write_str(params.total_actions.numtoa_str(10, &mut num_out));
+
+    fmt_buf.action_name_buf.write_str(params.action_str);
 
     params.ordinal_action == params.total_actions
 }

@@ -6,18 +6,13 @@ use ledger_device_sdk::ui::gadgets::Field;
 
 use crate::app_ui::fields_writer::FieldsWriter;
 
-/// action type (1) + Contract SHA256 or AccountId (1)
-const MAX_FIELDS: usize = 2;
+/// Contract SHA256 or AccountId (1)
+const MAX_FIELDS: usize = 1;
 
 pub fn format<'b>(
     use_global_contract: &'b mut parsing::types::GlobalContractIdentifier,
     writer: &'_ mut FieldsWriter<'b, MAX_FIELDS>,
 ) {
-    writer.push_fields(ElipsisFields::one(Field {
-        name: "Action type",
-        value: "Use Global Contract",
-    }));
-
     writer.push_fields(ElipsisFields::one(match use_global_contract {
         parsing::types::GlobalContractIdentifier::CodeHash(code_hash) => Field {
             name: "Contract SHA256",
