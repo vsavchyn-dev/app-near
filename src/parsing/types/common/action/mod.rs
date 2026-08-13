@@ -63,3 +63,24 @@ impl BorshDeserialize for Action {
         }
     }
 }
+
+impl Action {
+    pub fn get_action_str(&self) -> &'static str {
+        match self {
+            Action::CreateAccount => "Create Account",
+            Action::DeployContract => "Deploy Contract",
+            Action::FunctionCall => "Function Call",
+            Action::Transfer => "Transfer",
+            Action::Stake => "Stake",
+            Action::AddKey => "Add Key",
+            Action::DeleteKey => "Delete Key",
+            Action::DeleteAccount => "Delete Account",
+            Action::Delegate => "Delegate",
+            Action::DeployGlobalContract => "Deploy Global Contract",
+            Action::UseGlobalContract => "Use Global Contract",
+            Action::DeterministicStateInit => "Deterministic State Init",
+            Action::TransferToGasKey => "Transfer To Gas Key",
+            Action::WithdrawFromGasKey => "Withdraw From Gas Key",
+        }
+    }
+}

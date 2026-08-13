@@ -22,15 +22,17 @@ pub mod use_global_contract;
 pub struct ActionParams {
     pub ordinal_action: u32,
     pub total_actions: u32,
+    pub action_str: &'static str,
     pub is_nested_delegate: bool,
 }
 
 pub fn handle_action(
     stream: &mut HashingStream<SingleTxStream<'_>>,
-    params: ActionParams,
+    mut params: ActionParams,
     receiver_id: &CappedAccountId,
 ) -> Result<(), AppSW> {
     let action = Action::deserialize_reader(stream).map_err(|_err| AppSW::TxParsingFail)?;
+    params.action_str = action.get_action_str();
     dispatch_action(stream, action, params, receiver_id)
 }
 
@@ -44,8 +46,8 @@ pub fn dispatch_action(
 ) -> Result<(), AppSW> {
     match action {
         Action::Transfer => transfer::handle(stream, params),
-        Action::CreateAccount => create_account::handle(stream, params),
-        Action::DeleteAccount => delete_account::handle(stream, params),
+        Action::CreateAccount => create_account::handle(stream, params, receiver_id),
+        Action::DeleteAccount => delete_account::handle(stream, params, receiver_id),
         Action::DeleteKey => delete_key::handle(stream, params),
         Action::Stake => stake::handle(stream, params),
         Action::AddKey => add_key::handle(stream, params),

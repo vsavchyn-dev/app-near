@@ -24,20 +24,14 @@ impl FieldsContext {
     }
 }
 
-const MAX_FIELDS: usize = 3;
+const MAX_FIELDS: usize = 2;
 
 pub fn format<'b, 'a: 'b>(
     gas_key_transaction: &'b parsing::types::GasKeyTransactionData,
     field_context: &'a mut FieldsContext,
     writer: &'_ mut FieldsWriter<'b, MAX_FIELDS>,
-    gas_key_transaction_action_type: &'b str,
     gas_key_transaction_balance_action: &'b str,
 ) {
-    writer.push_fields(ElipsisFields::one(Field {
-        name: "Action type",
-        value: gas_key_transaction_action_type,
-    }));
-
     field_context
         .pub_key_context
         .format_public_key(&gas_key_transaction.public_key);

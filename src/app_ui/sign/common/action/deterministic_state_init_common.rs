@@ -20,14 +20,17 @@ impl PostfixFieldsContext {
     }
 }
 
-/// action type (1) + Global Contract Identifier (1) + state size (1) + num of state entries (1) +
+/// State Init Version (1) + Global Contract Identifier (1) + state size (1) + num of state entries (1) +
 /// deposit
 const MAX_FIELDS: usize = 5;
 
-pub fn format<'b, const N: usize>(action_type: &'b str, writer: &'_ mut FieldsWriter<'b, N>) {
+pub fn format<'b, const N: usize>(
+    state_init_version_str: &'b str,
+    writer: &'_ mut FieldsWriter<'b, N>,
+) {
     writer.push_fields(ElipsisFields::one(Field {
-        name: "Action type",
-        value: action_type,
+        name: "State Init Version",
+        value: state_init_version_str,
     }));
 }
 

@@ -26,7 +26,7 @@ impl FieldsContext {
     }
 }
 
-/// action type (1) + Public Key (1) +
+/// Public Key (1) + Access Key Type (1) +
 /// Access Key Nonce (1) + Access Permission (1) +
 /// GasKey Balance (1) + GasKey Number of Nonces (1)
 /// FnCall Allowance (1) +
@@ -44,21 +44,21 @@ pub fn format<'b, 'a: 'b, const N: usize>(
         .pub_key_context
         .format_public_key(&add_key.public_key);
 
-    let action_type_str: &str = match add_key.access_key.permission {
-        AccessKeyPermission::FullAccess | AccessKeyPermission::FunctionCall => "Add Key",
+    let key_type_str: &str = match add_key.access_key.permission {
+        AccessKeyPermission::FullAccess | AccessKeyPermission::FunctionCall => "Standard Key",
         AccessKeyPermission::GasKeyFullAccess | AccessKeyPermission::GasKeyFunctionCall => {
-            "Add Gas Key"
+            "Gas Key"
         }
     };
 
     writer.push_fields(ElipsisFields::one(Field {
-        name: "Action type",
-        value: action_type_str,
+        name: "Public Key",
+        value: field_context.pub_key_context.as_str(),
     }));
 
     writer.push_fields(ElipsisFields::one(Field {
-        name: "Public Key",
-        value: field_context.pub_key_context.as_str(),
+        name: "Access Key Type",
+        value: key_type_str,
     }));
 
     writer.push_fields(ElipsisFields::one(Field {
