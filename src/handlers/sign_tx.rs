@@ -143,10 +143,10 @@ fn detect_combined_stake_flow(
             }
 
             let method_name = core::str::from_utf8(&rest[4..4 + method_len]).ok();
-            if let Some(method_name) = method_name {
-                if sign_ui::action::is_staking_method(method_name) {
-                    return Ok(Some(CombinedStakeFlow::StakingFunctionCall));
-                }
+            if let Some(method_name) = method_name
+                && sign_ui::action::is_staking_method(method_name)
+            {
+                return Ok(Some(CombinedStakeFlow::StakingFunctionCall));
             }
             Ok(None)
         }
